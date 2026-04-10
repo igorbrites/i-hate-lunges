@@ -10,7 +10,7 @@ const DATA_DIR = "src/data/memes";
 
 async function callLLM(messages, token, temperature = 0.7) {
   const res = await fetch(
-    "https://models.inference.ai.github.com/chat/completions",
+    "https://models.github.ai/inference/chat/completions",
     {
       method: "POST",
       headers: {
@@ -18,7 +18,7 @@ async function callLLM(messages, token, temperature = 0.7) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "openai/gpt-4.1-mini",
         temperature,
         messages,
       }),
@@ -59,11 +59,20 @@ async function generateMemeIdeas(templates, token) {
 Your job: pick ${MAX_MEMES} meme templates from the provided list and write HILARIOUS bilingual captions (English + Brazilian Portuguese).
 
 Rules:
+- CRITICAL: Only use template IDs and names that appear EXACTLY in the provided list. Do not invent, guess, or modify any ID or name.
+- Write texts in the correct spatial order for each box. For well-known templates, follow these conventions:
+  - Distracted Boyfriend: box 1 = girlfriend (thing being ignored/abandoned), box 2 = boyfriend (the subject), box 3 = girl in red (the temptation)
+  - Drake Hotline Bling: box 1 = thing Drake rejects (top panel), box 2 = thing Drake approves (bottom panel)
+  - Two Buttons: box 1 = first button label, box 2 = second button label, box 3 = sweating person label
+  - Change My Mind: box 1 = the controversial statement on the table sign ONLY — "Change My Mind" is already printed on the sign, do NOT add it as a box
+  - Three-Headed Dragon: box 1 = top header label, box 2 = left head (the sensible one), box 3 = middle head (the emotional one), box 4 = right head (the unhinged/goofy one)
+  - Panik Kalm Panik: box 1 = first panic trigger, box 2 = the calming realization, box 3 = the bigger panic
+  - For any other template, use common sense based on the template name to match text to the correct visual position.
 - Pick templates that work well for lunge/leg day humor.
 - Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
 - The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
 - Also write a short caption (alt text) for each meme in both languages — this is shown below the meme in the gallery, separate from the image text.
-- "Afundo" is the Portuguese word for "lunge" (the exercise).
+- "Afundo" is the Portuguese word for "lunge" (the exercise). CRITICAL: it NEVER pluralizes in Brazilian Portuguese. Writing "afundos" is ALWAYS wrong. Use "afundo" even when referring to multiple lunges (e.g. "sem afundo", "odeio afundo", not "sem afundos").
 - Be creative and varied — don't repeat the same joke structure across memes.
 - Make sure the humor works in BOTH languages (adapt the joke culturally, don't translate literally).
 - Use UPPERCASE for the meme image texts (classic meme style).
@@ -91,7 +100,28 @@ Return ONLY a JSON array (no markdown fences, no explanation):
 
   const match = raw.match(/\[[\s\S]*\]/);
   if (!match) throw new Error(`Could not parse meme ideas JSON: ${raw}`);
-  return JSON.parse(match[0]);
+  const ideas = JSON.parse(match[0]);
+
+  const validIds = new Set(templates.map((t) => t.id));
+  const valid = ideas.filter((idea) => {
+    if (!validIds.has(idea.templateId)) {
+      console.warn(`Dropping "${idea.templateName}": unknown templateId ${idea.templateId}`);
+      return false;
+    }
+    return true;
+  });
+
+  // Fix any "afundos" the LLM snuck in despite instructions
+  for (const idea of valid) {
+    const fixAfundos = (t) => t
+      .replace(/afundos/gi, (m) => m[0] === m[0].toUpperCase() ? "AFUNDO" : "afundo")
+      .replace(/\b(os|as)\s+(AFUNDO)\b/g, "$2")
+      .replace(/\b(os|as)\s+(afundo)\b/gi, "afundo");
+    idea.boxes_pt = idea.boxes_pt.map(fixAfundos);
+    idea.caption_pt = fixAfundos(idea.caption_pt);
+  }
+
+  return valid;
 }
 
 async function captionImage(templateId, texts, username, password) {
