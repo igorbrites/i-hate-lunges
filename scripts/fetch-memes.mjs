@@ -59,6 +59,7 @@ async function generateMemeIdeas(templates, token) {
 Your job: pick ${MAX_MEMES} meme templates from the provided list and write HILARIOUS bilingual captions (English + Brazilian Portuguese).
 
 Rules:
+- CRITICAL: Only use template IDs and names that appear EXACTLY in the provided list. Do not invent, guess, or modify any ID or name.
 - Pick templates that work well for lunge/leg day humor.
 - Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
 - The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
@@ -91,7 +92,18 @@ Return ONLY a JSON array (no markdown fences, no explanation):
 
   const match = raw.match(/\[[\s\S]*\]/);
   if (!match) throw new Error(`Could not parse meme ideas JSON: ${raw}`);
-  return JSON.parse(match[0]);
+  const ideas = JSON.parse(match[0]);
+
+  const validIds = new Set(templates.map((t) => t.id));
+  const valid = ideas.filter((idea) => {
+    if (!validIds.has(idea.templateId)) {
+      console.warn(`Dropping "${idea.templateName}": unknown templateId ${idea.templateId}`);
+      return false;
+    }
+    return true;
+  });
+
+  return valid;
 }
 
 async function captionImage(templateId, texts, username, password) {
