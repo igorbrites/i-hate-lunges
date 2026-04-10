@@ -19,9 +19,11 @@ jobs:
       with:
         node-version: 22
 
-    - name: Fetch memes from Reddit
+    - name: Generate memes via Imgflip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        IMGFLIP_USERNAME: ${{ secrets.IMGFLIP_USERNAME }}
+        IMGFLIP_PASSWORD: ${{ secrets.IMGFLIP_PASSWORD }}
       run: node scripts/fetch-memes.mjs
 
     - name: Check for new memes
@@ -45,9 +47,9 @@ jobs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git checkout -b "$BRANCH"
         git add public/images/memes/ src/data/memes/
-        git commit -m "chore: add new memes from Reddit
+        git commit -m "chore: add new memes via Imgflip
 
-        Automated meme discovery via fetch-memes script."
+        Automated meme generation via Imgflip + GitHub Models."
         git push origin "$BRANCH"
 
         SUMMARY=""
@@ -58,10 +60,10 @@ jobs:
         gh pr create \
           --base main \
           --head "$BRANCH" \
-          --title "chore: new memes from Reddit ($(date +%Y-%m-%d))" \
+          --title "chore: new memes via Imgflip ($(date +%Y-%m-%d))" \
           --body "## New Memes
 
-        Automated meme discovery found new content from Reddit.
+        Automated meme generation using Imgflip templates + GitHub Models AI captions.
 
         ### Memes
 
