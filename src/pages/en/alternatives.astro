@@ -2,15 +2,14 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const exercises = [
-  { emoji: "🏋️", name: "Squats", desc: "All the quad burn, none of the existential crisis." },
-  { emoji: "🦵", name: "Leg Press", desc: "Let the machine do the balancing. You focus on surviving." },
-  { emoji: "", name: "Glute Bridges", desc: "Work your glutes while lying down. Peak efficiency." },
-  { emoji: "🚴", name: "Cycling", desc: "Seated. Moving. No wobbling. The holy trinity." },
-  { emoji: "🧘", name: "Wall Sits", desc: "Just you, a wall, and the quiet dignity of not lunging." },
-  { emoji: "🏊", name: "Swimming", desc: "Zero gravity, zero lunges. Aquatic paradise." },
-  { emoji: "🚶", name: "Walking", desc: "Literally just walking. Still more dignified than a walking lunge." },
-  { emoji: "🧗", name: "Stair Climbing", desc: "Functional? Yes. Humiliating? No. We approve." },
-  { emoji: "💃", name: "Dancing", desc: "Express yourself through movement that doesn't require a spotter." },
+  { emoji: "🏋️", name: "Squats", desc: "All the quad burn, none of the existential crisis.", image: "/images/exercises/squats.jpeg" },
+  { emoji: "🦵", name: "Leg Press", desc: "Let the machine do the balancing. You focus on surviving.", image: "/images/exercises/leg-press.jpeg" },
+  { emoji: "", name: "Glute Bridges", desc: "Work your glutes while lying down. Peak efficiency.", image: "/images/exercises/glute-bridge.jpeg" },
+  { emoji: "🚴", name: "Cycling", desc: "Seated. Moving. No wobbling. The holy trinity.", image: "/images/exercises/cycling.jpeg" },
+  { emoji: "🧘", name: "Wall Sits", desc: "Just you, a wall, and the quiet dignity of not lunging.", image: "/images/exercises/wall-sit.jpg" },
+  { emoji: "🏊", name: "Swimming", desc: "Zero gravity, zero lunges. Aquatic paradise.", image: "/images/exercises/swimming.jpeg" },
+  { emoji: "🚶", name: "Walking", desc: "Literally just walking. Still more dignified than a walking lunge.", image: "/images/exercises/walking.jpg" },
+  { emoji: "💃", name: "Dancing", desc: "Express yourself through movement that doesn't require a spotter.", image: "/images/exercises/dancing.jpeg" },
 ];
 ---
 
@@ -25,7 +24,10 @@ const exercises = [
     <ul class="exercise-grid">
       {exercises.map((ex) => (
         <li class="card exercise-card">
-          <span class="exercise-emoji">{ex.emoji}</span>
+          {ex.image
+            ? <img src={ex.image} alt={ex.name} loading="lazy" />
+            : <span class="exercise-emoji">{ex.emoji}</span>
+          }
           <h2>{ex.name}</h2>
           <p>{ex.desc}</p>
         </li>
@@ -61,23 +63,32 @@ const exercises = [
 
   .exercise-card {
     text-align: center;
-    padding: var(--space-lg) var(--space-md);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .exercise-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-bg-alt);
   }
 
   .exercise-emoji {
     font-size: 2.5rem;
     display: block;
-    margin-bottom: var(--space-sm);
+    padding-top: var(--space-lg);
   }
 
   .exercise-card h2 {
     font-size: 1.2rem;
-    margin-bottom: var(--space-xs);
+    margin: var(--space-sm) var(--space-md) var(--space-xs);
   }
 
   .exercise-card p {
     font-size: 0.9rem;
     color: var(--color-text-muted);
+    padding: 0 var(--space-md) var(--space-lg);
   }
 
   .outro {

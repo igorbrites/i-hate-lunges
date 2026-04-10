@@ -19,37 +19,37 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   </section>
 
   <section class="features">
-    <div class="card">
+    <a href="/alternativas/" class="card">
       <h2>🏋️ Alternativas</h2>
       <p>
         A vida é cheia de exercícios que não fazem você questionar sua
         existência. Nós catalogamos eles.
       </p>
-      <a href="/alternativas/">Ver exercícios &rarr;</a>
-    </div>
-    <div class="card">
+      <span class="card-cta">Ver exercícios &rarr;</span>
+    </a>
+    <a href="/disfarce/" class="card">
       <h2>🕵️ Disfarçados</h2>
       <p>
         Alguns exercícios são só afundos usando bigode falso. Nós desmascaramos
         todos.
       </p>
-      <a href="/disfarce/">Desmascarar as fraudes &rarr;</a>
-    </div>
-    <div class="card">
+      <span class="card-cta">Desmascarar as fraudes &rarr;</span>
+    </a>
+    <a href="/contador/" class="card">
       <h2>📅 O Contador</h2>
       <p>
         Acompanhe quantos dias gloriosos você passou sem fazer um único afundo.
         Use como medalha.
       </p>
-      <a href="/contador/">Começar a contar &rarr;</a>
-    </div>
-    <div class="card">
+      <span class="card-cta">Começar a contar &rarr;</span>
+    </a>
+    <a href="/memes/" class="card">
       <h2>😂 Galeria de Memes</h2>
       <p>
         Porque às vezes a única forma de processar o trauma é através do humor.
       </p>
-      <a href="/memes/">Ver memes &rarr;</a>
-    </div>
+      <span class="card-cta">Ver memes &rarr;</span>
+    </a>
   </section>
 </BaseLayout>
 
@@ -86,13 +86,39 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     margin-top: var(--space-xl);
   }
 
+  .features .card {
+    display: flex;
+    flex-direction: column;
+    color: var(--color-text);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .features .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px var(--color-card-shadow);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
   .features .card h2 {
     font-size: 1.3rem;
     margin-bottom: var(--space-sm);
   }
 
   .features .card p {
+    flex: 1;
     margin-bottom: var(--space-sm);
     color: var(--color-text-muted);
+  }
+
+  .card-cta {
+    color: var(--color-secondary);
+    font-weight: 500;
+  }
+
+  .features .card:hover .card-cta {
+    text-decoration: underline;
   }
 </style>

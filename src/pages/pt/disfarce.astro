@@ -2,18 +2,19 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const disfarce = [
-  { emoji: "🇧🇬", name: "Agachamento Búlgaro", veredito: "Afundo com Banco", desc: "Um afundo com o pé de trás no banco. Adicionaram um móvel pra te distrair. Continua sendo afundo." },
-  { emoji: "🔀", name: "Split Squat", veredito: "Afundo Parado", desc: "Um afundo que não se move. Literalmente só renomearam. Zero esforço pra esconder." },
-  { emoji: "🏃", name: "Step-Up", veredito: "Afundo Vertical", desc: "Um afundo apontado pro céu. Você ainda está caindo em agonia de joelho unilateral — só que pra cima." },
-  { emoji: "🔄", name: "Afundo Reverso", veredito: "Afundo de Costas", desc: "É um afundo. Mas pra trás. Revolucionário? Não. Ainda é afundo? Com certeza." },
-  { emoji: "🚶", name: "Afundo Caminhando", veredito: "Afundo Migratório", desc: "Um afundo que viaja. Agora seu sofrimento cobre mais terreno. Que delícia." },
-  { emoji: "🤸", name: "Afundo com Salto", veredito: "Afundo Aéreo", desc: "Um afundo com tempo de voo. Porque destruição regular de joelho não era extrema o suficiente." },
-  { emoji: "🎀", name: "Afundo Cruzado", veredito: "Afundo Chique", desc: "Um afundo vestido pra festa. Cruzar a perna atrás não torna elegante. Torna pior." },
-  { emoji: "📐", name: "Afundo Lateral", veredito: "Afundo de Lado", desc: "Um afundo que vai pro lado. Nova direção, mesma traição." },
-  { emoji: "⬇️", name: "Afundo em Déficit", veredito: "Afundo Mais Fundo", desc: "Um afundo de uma superfície elevada. Mais amplitude de movimento significa mais amplitude de sofrimento." },
-  { emoji: "🕐", name: "Afundo Relógio", veredito: "Afundo Omnidirecional", desc: "Afundos em todas as direções. 360 graus de arrependimento." },
-  { emoji: "🔫", name: "Pistol Squat", veredito: "Primo do Afundo", desc: "Uma perna só. Flexão profunda de joelho. Requer equilíbrio que você não tem. Se parece afundo e dói como afundo…" },
-  { emoji: "📦", name: "Box Step-Over", veredito: "Afundo Duplo", desc: "Sobe e desce. São dois afundos. Cobraram em dobro." },
+  { emoji: "🇧🇬", name: "Agachamento Búlgaro", veredito: "Afundo com Banco", desc: "Um afundo com o pé de trás no banco. Adicionaram um móvel pra te distrair. Continua sendo afundo.", image: "/images/exercises/bulgarian-split-squat.jpeg" },
+  { emoji: "🔀", name: "Split Squat", veredito: "Afundo Parado", desc: "Um afundo que não se move. Literalmente só renomearam. Zero esforço pra esconder.", image: "/images/exercises/split-squat.jpg" },
+  { emoji: "🏃", name: "Step-Up", veredito: "Afundo Vertical", desc: "Um afundo apontado pro céu. Você ainda está caindo em agonia de joelho unilateral — só que pra cima.", image: "/images/exercises/step-ups.jpg" },
+  { emoji: "🔄", name: "Afundo Reverso", veredito: "Afundo de Costas", desc: "É um afundo. Mas pra trás. Revolucionário? Não. Ainda é afundo? Com certeza.", image: "/images/exercises/reverse-lunge.jpeg" },
+  { emoji: "🚶", name: "Afundo Caminhando", veredito: "Afundo Migratório", desc: "Um afundo que viaja. Agora seu sofrimento cobre mais terreno. Que delícia.", image: "/images/exercises/walking-lunge.jpeg" },
+  { emoji: "🤸", name: "Afundo com Salto", veredito: "Afundo Aéreo", desc: "Um afundo com tempo de voo. Porque destruição regular de joelho não era extrema o suficiente.", image: "/images/exercises/jump-lunge.jpeg" },
+  { emoji: "🎀", name: "Afundo Cruzado", veredito: "Afundo Chique", desc: "Um afundo vestido pra festa. Cruzar a perna atrás não torna elegante. Torna pior.", image: "/images/exercises/curtsy-lunge.jpg" },
+  { emoji: "📐", name: "Afundo Lateral", veredito: "Afundo de Lado", desc: "Um afundo que vai pro lado. Nova direção, mesma traição.", image: "/images/exercises/lateral-lunge.jpeg" },
+  { emoji: "⬇️", name: "Afundo em Déficit", veredito: "Afundo Mais Fundo", desc: "Um afundo de uma superfície elevada. Mais amplitude de movimento significa mais amplitude de sofrimento.", image: "/images/exercises/deficit-lunge.jpeg" },
+  { emoji: "🕐", name: "Afundo Relógio", veredito: "Afundo Omnidirecional", desc: "Afundos em todas as direções. 360 graus de arrependimento.", image: "/images/exercises/clock-lunge.jpeg" },
+  { emoji: "🔫", name: "Pistol Squat", veredito: "Primo do Afundo", desc: "Uma perna só. Flexão profunda de joelho. Requer equilíbrio que você não tem. Se parece afundo e dói como afundo…", image: "/images/exercises/pistol-squat.jpg" },
+  { emoji: "📦", name: "Box Step-Over", veredito: "Afundo Duplo", desc: "Sobe e desce. São dois afundos. Cobraram em dobro.", image: "/images/exercises/box-step-over.jpeg" },
+  { emoji: "🧗", name: "Subir Escadas", veredito: "Afundo Repetido", desc: "Cada degrau é um agachamento unilateral. Cada lance é um corredor de afundo. As escadas eram uma armadilha o tempo todo.", image: "/images/exercises/stair-climbing.jpeg" },
 ];
 ---
 
@@ -29,10 +30,15 @@ const disfarce = [
     <ul class="disguise-grid">
       {disfarce.map((ex) => (
         <li class="card disguise-card">
-          <span class="disguise-emoji">{ex.emoji}</span>
-          <h2>{ex.name}</h2>
-          <span class="verdict">🚨 Veredito: {ex.veredito}</span>
-          <p>{ex.desc}</p>
+          {ex.image
+            ? <img src={ex.image} alt={ex.name} loading="lazy" />
+            : <span class="disguise-emoji">{ex.emoji}</span>
+          }
+          <div class="disguise-body">
+            <h2>{ex.name}</h2>
+            <span class="verdict">🚨 Veredito: {ex.veredito}</span>
+            <p>{ex.desc}</p>
+          </div>
         </li>
       ))}
     </ul>
@@ -66,13 +72,25 @@ const disfarce = [
 
   .disguise-card {
     text-align: center;
-    padding: var(--space-lg) var(--space-md);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .disguise-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-bg-alt);
   }
 
   .disguise-emoji {
     font-size: 2.5rem;
     display: block;
-    margin-bottom: var(--space-sm);
+    padding-top: var(--space-lg);
+  }
+
+  .disguise-body {
+    padding: var(--space-sm) var(--space-md) var(--space-lg);
   }
 
   .disguise-card h2 {

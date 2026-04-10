@@ -2,15 +2,14 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const exercises = [
-  { emoji: "🏋️", name: "Agachamento", desc: "Toda a queimação no quadríceps, nenhuma crise existencial." },
-  { emoji: "🦵", name: "Leg Press", desc: "Deixe a máquina cuidar do equilíbrio. Você foca em sobreviver." },
-  { emoji: "", name: "Elevação de Quadril", desc: "Trabalhe o glúteo deitado. Eficiência máxima." },
-  { emoji: "🚴", name: "Ciclismo", desc: "Sentado. Se movendo. Sem bambolear. A santíssima trindade." },
-  { emoji: "🧘", name: "Cadeirinha na Parede", desc: "Só você, uma parede, e a dignidade silenciosa de não fazer afundo." },
-  { emoji: "🏊", name: "Natação", desc: "Gravidade zero, afundos zero. Paraíso aquático." },
-  { emoji: "🚶", name: "Caminhar", desc: "Literalmente só caminhar. Ainda mais digno que um afundo caminhando." },
-  { emoji: "🧗", name: "Subir Escadas", desc: "Funcional? Sim. Humilhante? Não. Aprovamos." },
-  { emoji: "💃", name: "Dançar", desc: "Expresse-se através de movimentos que não precisam de um observador." },
+  { emoji: "🏋️", name: "Agachamento", desc: "Toda a queimação no quadríceps, nenhuma crise existencial.", image: "/images/exercises/squats.jpeg" },
+  { emoji: "🦵", name: "Leg Press", desc: "Deixe a máquina cuidar do equilíbrio. Você foca em sobreviver.", image: "/images/exercises/leg-press.jpeg" },
+  { emoji: "", name: "Elevação de Quadril", desc: "Trabalhe o glúteo deitado. Eficiência máxima.", image: "/images/exercises/glute-bridge.jpeg" },
+  { emoji: "🚴", name: "Ciclismo", desc: "Sentado. Se movendo. Sem bambolear. A santíssima trindade.", image: "/images/exercises/cycling.jpeg" },
+  { emoji: "🧘", name: "Cadeirinha na Parede", desc: "Só você, uma parede, e a dignidade silenciosa de não fazer afundo.", image: "/images/exercises/wall-sit.jpg" },
+  { emoji: "🏊", name: "Natação", desc: "Gravidade zero, afundo zero. Paraíso aquático.", image: "/images/exercises/swimming.jpeg" },
+  { emoji: "🚶", name: "Caminhar", desc: "Literalmente só caminhar. Ainda mais digno que um afundo caminhando.", image: "/images/exercises/walking.jpg" },
+  { emoji: "💃", name: "Dançar", desc: "Expresse-se através de movimentos que não precisam de um observador.", image: "/images/exercises/dancing.jpeg" },
 ];
 ---
 
@@ -26,7 +25,10 @@ const exercises = [
     <ul class="exercise-grid">
       {exercises.map((ex) => (
         <li class="card exercise-card">
-          <span class="exercise-emoji">{ex.emoji}</span>
+          {ex.image
+            ? <img src={ex.image} alt={ex.name} loading="lazy" />
+            : <span class="exercise-emoji">{ex.emoji}</span>
+          }
           <h2>{ex.name}</h2>
           <p>{ex.desc}</p>
         </li>
@@ -62,23 +64,32 @@ const exercises = [
 
   .exercise-card {
     text-align: center;
-    padding: var(--space-lg) var(--space-md);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .exercise-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-bg-alt);
   }
 
   .exercise-emoji {
     font-size: 2.5rem;
     display: block;
-    margin-bottom: var(--space-sm);
+    padding-top: var(--space-lg);
   }
 
   .exercise-card h2 {
     font-size: 1.2rem;
-    margin-bottom: var(--space-xs);
+    margin: var(--space-sm) var(--space-md) var(--space-xs);
   }
 
   .exercise-card p {
     font-size: 0.9rem;
     color: var(--color-text-muted);
+    padding: 0 var(--space-md) var(--space-lg);
   }
 
   .outro {
