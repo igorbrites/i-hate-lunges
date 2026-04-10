@@ -72,7 +72,7 @@ Rules:
 - Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
 - The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
 - Also write a short caption (alt text) for each meme in both languages — this is shown below the meme in the gallery, separate from the image text.
-- "Afundo" is the Portuguese word for "lunge" (the exercise). CRITICAL: it NEVER pluralizes in Brazilian Portuguese. Writing "afundos" is ALWAYS wrong. Use "afundo" even when referring to multiple lunges (e.g. "sem afundo", "odeio afundo", not "sem afundos").
+- In English texts, always use "lunge" / "lunges" — never "afundo". In Portuguese texts, always use "afundo" — never "lunge". CRITICAL: "afundo" NEVER pluralizes in Brazilian Portuguese. Writing "afundos" is ALWAYS wrong. Use "afundo" even when referring to multiple lunges (e.g. "sem afundo", "odeio afundo", not "sem afundos").
 - Be creative and varied — don't repeat the same joke structure across memes.
 - Make sure the humor works in BOTH languages (adapt the joke culturally, don't translate literally).
 - Use UPPERCASE for the meme image texts (classic meme style).
@@ -111,14 +111,21 @@ Return ONLY a JSON array (no markdown fences, no explanation):
     return true;
   });
 
-  // Fix any "afundos" the LLM snuck in despite instructions
   for (const idea of valid) {
+    // Fix PT: "afundos" never pluralizes, strip plural articles too
     const fixAfundos = (t) => t
       .replace(/afundos/gi, (m) => m[0] === m[0].toUpperCase() ? "AFUNDO" : "afundo")
       .replace(/\b(os|as)\s+(AFUNDO)\b/g, "$2")
       .replace(/\b(os|as)\s+(afundo)\b/gi, "afundo");
     idea.boxes_pt = idea.boxes_pt.map(fixAfundos);
     idea.caption_pt = fixAfundos(idea.caption_pt);
+
+    // Fix EN: "afundo" should never appear, replace with "lunge"
+    const fixEnLunge = (t) => t
+      .replace(/AFUNDO/g, "LUNGE")
+      .replace(/afundo/g, "lunge");
+    idea.boxes_en = idea.boxes_en.map(fixEnLunge);
+    idea.caption_en = fixEnLunge(idea.caption_en);
   }
 
   return valid;
