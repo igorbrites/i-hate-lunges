@@ -113,7 +113,10 @@ Return ONLY a JSON array (no markdown fences, no explanation):
 
   // Fix any "afundos" the LLM snuck in despite instructions
   for (const idea of valid) {
-    const fixAfundos = (t) => t.replace(/afundos/gi, (m) => m[0] === m[0].toUpperCase() ? "AFUNDO" : "afundo");
+    const fixAfundos = (t) => t
+      .replace(/afundos/gi, (m) => m[0] === m[0].toUpperCase() ? "AFUNDO" : "afundo")
+      .replace(/\b(os|as)\s+(AFUNDO)\b/g, "$2")
+      .replace(/\b(os|as)\s+(afundo)\b/gi, "afundo");
     idea.boxes_pt = idea.boxes_pt.map(fixAfundos);
     idea.caption_pt = fixAfundos(idea.caption_pt);
   }
