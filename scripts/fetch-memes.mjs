@@ -10,7 +10,7 @@ const DATA_DIR = "src/data/memes";
 
 async function callLLM(messages, token, temperature = 0.7) {
   const res = await fetch(
-    "https://models.inference.ai.github.com/chat/completions",
+    "https://models.github.ai/inference/chat/completions",
     {
       method: "POST",
       headers: {
@@ -18,7 +18,7 @@ async function callLLM(messages, token, temperature = 0.7) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "openai/gpt-4o-mini",
         temperature,
         messages,
       }),
