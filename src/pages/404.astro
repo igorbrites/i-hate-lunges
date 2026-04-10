@@ -1,0 +1,53 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getLangFromUrl } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+
+const messages = {
+  en: {
+    title: "404 — Page Not Found",
+    heading: "Looks like this page did a lunge and never came back.",
+    body: "It probably lost its balance. We've all been there.",
+    cta: "Return to safety",
+  },
+  pt: {
+    title: "404 — Página Não Encontrada",
+    heading: "Parece que essa página fez um afundo e nunca mais voltou.",
+    body: "Provavelmente perdeu o equilíbrio. Todos já passamos por isso.",
+    cta: "Voltar para a segurança",
+  },
+};
+
+const m = messages[lang];
+---
+
+<BaseLayout title={m.title}>
+  <section class="not-found">
+    <p class="not-found-icon" aria-hidden="true">🦵💨</p>
+    <h1>{m.heading}</h1>
+    <p>{m.body}</p>
+    <a href={`/${lang}/`} class="btn btn-primary">{m.cta}</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    text-align: center;
+    padding: var(--space-xl) 0;
+  }
+
+  .not-found-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .not-found h1 {
+    margin-bottom: var(--space-md);
+  }
+
+  .not-found p {
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-muted);
+  }
+</style>

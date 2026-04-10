@@ -1,0 +1,90 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout>
+  <section class="hero animate-in">
+    <h1>Eu Odeio Afundo.</h1>
+    <p class="hero-subtitle">
+      E eu estou <span class="dramatic">cansado de fingir que não.</span>
+    </p>
+    <p class="hero-body">
+      Bem-vindo ao único refúgio da internet para pessoas que viram a luz — a
+      luz no fim de um túnel que não tem absolutamente nenhum afundo.
+    </p>
+    <div class="hero-ctas">
+      <a href="/manifesto/" class="btn btn-primary">Leia o Manifesto</a>
+      <a href="/juramento/" class="btn btn-secondary">Faça o Juramento</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="card">
+      <h2>🏋️ Alternativas</h2>
+      <p>
+        A vida é cheia de exercícios que não fazem você questionar sua
+        existência. Nós catalogamos eles.
+      </p>
+      <a href="/alternativas/">Ver exercícios &rarr;</a>
+    </div>
+    <div class="card">
+      <h2>📅 O Contador</h2>
+      <p>
+        Acompanhe quantos dias gloriosos você passou sem fazer um único afundo.
+        Use como medalha.
+      </p>
+      <a href="/contador/">Começar a contar &rarr;</a>
+    </div>
+    <div class="card">
+      <h2>😂 Galeria de Memes</h2>
+      <p>
+        Porque às vezes a única forma de processar o trauma é através do humor.
+      </p>
+      <a href="/memes/">Ver memes &rarr;</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-xl) 0;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+
+  .hero-body {
+    max-width: 36rem;
+    margin: var(--space-md) auto 0;
+    font-size: 1.1rem;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  .features .card h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .features .card p {
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+</style>

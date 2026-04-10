@@ -1,0 +1,73 @@
+---
+import { t, type Lang } from "../i18n/utils";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<button
+  class="theme-toggle"
+  aria-label={t(lang, "theme.dark")}
+  title={t(lang, "theme.dark")}
+>
+  <span class="theme-icon sun" aria-hidden="true">☀️</span>
+  <span class="theme-icon moon" aria-hidden="true">🌙</span>
+</button>
+
+<script>
+  const btn = document.querySelector(".theme-toggle");
+  btn?.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const isDark =
+      current === "dark" ||
+      (!current && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    font-size: 1.1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-accent);
+  }
+
+  .moon {
+    display: none;
+  }
+
+  [data-theme="dark"] .sun {
+    display: none;
+  }
+
+  [data-theme="dark"] .moon {
+    display: inline;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .sun {
+      display: none;
+    }
+
+    :root:not([data-theme="light"]) .moon {
+      display: inline;
+    }
+  }
+</style>

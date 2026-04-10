@@ -1,0 +1,189 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import { t, getNavLinks, type Lang } from "../i18n/utils";
+
+interface Props {
+  lang: Lang;
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+const navLinks = getNavLinks(lang);
+const homeHref = `/${lang}/`;
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href={homeHref} class="logo">
+      <span class="logo-icon" aria-hidden="true">🚫🦵</span>
+      <span class="logo-text">{t(lang, "site.title")}</span>
+    </a>
+    <nav>
+      <button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        aria-label="Menu"
+      >
+        <span class="hamburger" aria-hidden="true"></span>
+      </button>
+      <ul id="nav-menu" class="nav-links">
+        {navLinks.map(({ label, href }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[{ active: currentPath.includes(href) && href !== "/" }]}
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <LanguageSwitcher lang={lang} currentPath={currentPath} />
+      <ThemeToggle lang={lang} />
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector(".menu-toggle");
+  const menu = document.querySelector("#nav-menu");
+  toggle?.addEventListener("click", () => {
+    const expanded = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!expanded));
+    menu?.classList.toggle("open");
+  });
+</script>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .logo:hover {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    font-size: 1.4rem;
+  }
+
+  nav {
+    flex: 1;
+  }
+
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: var(--space-sm);
+  }
+
+  .nav-links a {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: var(--space-xs);
+  }
+
+  .hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text);
+    position: relative;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text);
+    position: absolute;
+  }
+
+  .hamburger::before {
+    top: -7px;
+  }
+
+  .hamburger::after {
+    top: 7px;
+  }
+
+  @media (max-width: 768px) {
+    .header-inner {
+      flex-wrap: wrap;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+
+    .nav-links {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      padding: var(--space-sm) 0;
+    }
+
+    .nav-links.open {
+      display: flex;
+    }
+
+    nav {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout>
+  <section class="hero animate-in">
+    <h1>I Hate Lunges.</h1>
+    <p class="hero-subtitle">
+      And I'm <span class="dramatic">done pretending I don't.</span>
+    </p>
+    <p class="hero-body">
+      Welcome to the internet's only sanctuary for people who have seen the
+      light — the light at the end of a tunnel that has absolutely no lunges in
+      it.
+    </p>
+    <div class="hero-ctas">
+      <a href="/manifesto/" class="btn btn-primary">Read the Manifesto</a>
+      <a href="/pledge/" class="btn btn-secondary">Take the Pledge</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="card">
+      <h2>🏋️ Alternatives</h2>
+      <p>
+        Life is full of exercises that don't make you question your existence.
+        We've catalogued them.
+      </p>
+      <a href="/alternatives/">Explore exercises &rarr;</a>
+    </div>
+    <div class="card">
+      <h2>📅 The Counter</h2>
+      <p>
+        Track how many glorious days you've gone without a single lunge. Wear it
+        like a badge.
+      </p>
+      <a href="/counter/">Start counting &rarr;</a>
+    </div>
+    <div class="card">
+      <h2>😂 Meme Gallery</h2>
+      <p>
+        Because sometimes the only way to process the trauma is through humor.
+      </p>
+      <a href="/memes/">See memes &rarr;</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-xl) 0;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+
+  .hero-body {
+    max-width: 36rem;
+    margin: var(--space-md) auto 0;
+    font-size: 1.1rem;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  .features .card h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .features .card p {
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+</style>

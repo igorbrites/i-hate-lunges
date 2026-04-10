@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LungeCounter from "../../components/LungeCounter.astro";
+---
+
+<BaseLayout title="Lunge-Free Counter — I Hate Lunges">
+  <section class="counter-page animate-in">
+    <h1>The Lunge-Free Counter</h1>
+    <p class="intro">
+      How many days have you gone without performing a single lunge? Track your
+      streak. Protect your dignity. Never reset.
+    </p>
+    <LungeCounter lang="en" />
+  </section>
+</BaseLayout>
+
+<style>
+  .counter-page h1 {
+    text-align: center;
+  }
+
+  .intro {
+    text-align: center;
+    max-width: 36rem;
+    margin: var(--space-md) auto var(--space-lg);
+    font-size: 1.1rem;
+  }
+</style>

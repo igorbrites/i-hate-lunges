@@ -1,0 +1,141 @@
+---
+import type { Lang } from "../i18n/utils";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const text = {
+  en: {
+    days: "days lunge-free",
+    start: "Start My Counter",
+    reset: "I Lunged... (Reset Counter)",
+    resetConfirm: "Are you sure? This resets your streak. The shame is real.",
+    congrats: "Congratulations! Every day without a lunge is a day well lived.",
+    shame: "The counter has been reset. We don't judge. Much.",
+    milestone: "You've hit a milestone! Your knees thank you.",
+  },
+  pt: {
+    days: "dias sem afundo",
+    start: "Iniciar Meu Contador",
+    reset: "Eu fiz afundo... (Resetar Contador)",
+    resetConfirm: "Tem certeza? Isso reseta sua sequência. A vergonha é real.",
+    congrats: "Parabéns! Cada dia sem afundo é um dia bem vivido.",
+    shame: "O contador foi resetado. Nós não julgamos. Muito.",
+    milestone: "Você atingiu uma marca! Seus joelhos agradecem.",
+  },
+};
+
+const t = text[lang];
+---
+
+<div class="counter-widget" data-lang={lang}>
+  <div class="counter-display card">
+    <div class="counter-number" id="counter-days">0</div>
+    <div class="counter-label" id="counter-label">{t.days}</div>
+    <p class="counter-message" id="counter-message">{t.congrats}</p>
+  </div>
+  <div class="counter-actions">
+    <button class="btn btn-primary" id="counter-start">{t.start}</button>
+    <button class="btn btn-secondary" id="counter-reset" style="display:none">
+      {t.reset}
+    </button>
+  </div>
+</div>
+
+<script define:vars={{ t }}>
+  const STORAGE_KEY = "lunge-free-start";
+  const daysEl = document.getElementById("counter-days");
+  const messageEl = document.getElementById("counter-message");
+  const startBtn = document.getElementById("counter-start");
+  const resetBtn = document.getElementById("counter-reset");
+
+  function getDays() {
+    const start = localStorage.getItem(STORAGE_KEY);
+    if (!start) return -1;
+    const diff = Date.now() - new Date(start).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function render() {
+    const days = getDays();
+    if (days < 0) {
+      daysEl.textContent = "?";
+      messageEl.textContent = "";
+      startBtn.style.display = "inline-block";
+      resetBtn.style.display = "none";
+      return;
+    }
+    daysEl.textContent = String(days);
+    startBtn.style.display = "none";
+    resetBtn.style.display = "inline-block";
+
+    if (days >= 30 && days % 30 === 0) {
+      messageEl.textContent = t.milestone;
+    } else {
+      messageEl.textContent = t.congrats;
+    }
+  }
+
+  startBtn?.addEventListener("click", () => {
+    localStorage.setItem(STORAGE_KEY, new Date().toISOString());
+    render();
+  });
+
+  resetBtn?.addEventListener("click", () => {
+    if (confirm(t.resetConfirm)) {
+      localStorage.removeItem(STORAGE_KEY);
+      messageEl.textContent = t.shame;
+      daysEl.textContent = "0";
+      setTimeout(render, 2000);
+    }
+  });
+
+  render();
+</script>
+
+<style>
+  .counter-widget {
+    max-width: 24rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .counter-display {
+    padding: var(--space-xl);
+    margin-bottom: var(--space-lg);
+  }
+
+  .counter-number {
+    font-family: var(--font-heading);
+    font-size: clamp(4rem, 12vw, 8rem);
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .counter-label {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .counter-message {
+    margin-top: var(--space-md);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    min-height: 1.5em;
+  }
+
+  .counter-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+</style>

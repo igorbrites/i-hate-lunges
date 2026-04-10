@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PledgeForm from "../../components/PledgeForm.astro";
+---
+
+<BaseLayout title="O Juramento Anti-Afundo — Eu Odeio Afundo">
+  <section class="pledge-page animate-in">
+    <h1>O Juramento Anti-Afundo</h1>
+    <p class="intro">
+      Um juramento solene, válido em todas as academias, parques e salas de
+      estar do universo conhecido.
+    </p>
+    <PledgeForm lang="pt" />
+  </section>
+</BaseLayout>
+
+<style>
+  .pledge-page h1 {
+    text-align: center;
+  }
+
+  .intro {
+    text-align: center;
+    max-width: 36rem;
+    margin: var(--space-md) auto var(--space-lg);
+    font-size: 1.1rem;
+  }
+</style>

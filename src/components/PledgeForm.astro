@@ -1,0 +1,173 @@
+---
+import type { Lang } from "../i18n/utils";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const text = {
+  en: {
+    oath: `I do solemnly swear, upon my quads and all that is holy, that I shall never willingly perform a lunge again. Not a forward lunge. Not a reverse lunge. Not a walking lunge. Not a curtsy lunge — especially not a curtsy lunge.
+
+I reject the lunge in all its forms. I renounce the wobble. I refuse the descent. From this day forward, my knees shall only bend in squats, on stairs, or to pick up pizza from the floor.
+
+So help me, Leg Press.`,
+    sign: "I Solemnly Swear",
+    signed: "You have taken the pledge.",
+    certificate: "Certificate of Lunge Liberation",
+    certBody: "This certifies that the bearer has officially and irrevocably pledged to never perform a lunge again.",
+    date: "Date of Liberation",
+    placeholder: "Your name",
+  },
+  pt: {
+    oath: `Eu juro solenemente, sobre meus quadríceps e tudo que é sagrado, que nunca mais realizarei voluntariamente um afundo. Nem um afundo frontal. Nem um afundo reverso. Nem um afundo caminhando. Nem um afundo cruzado — especialmente não um afundo cruzado.
+
+Eu rejeito o afundo em todas as suas formas. Renuncio o bambolear. Recuso a descida. A partir de hoje, meus joelhos só se flexionarão em agachamentos, em escadas, ou para pegar pizza do chão.
+
+Que o Leg Press me ajude.`,
+    sign: "Eu Juro Solenemente",
+    signed: "Você fez o juramento.",
+    certificate: "Certificado de Libertação do Afundo",
+    certBody: "Este documento certifica que o portador oficial e irrevogavelmente jurou nunca mais fazer um afundo.",
+    date: "Data da Libertação",
+    placeholder: "Seu nome",
+  },
+};
+
+const t = text[lang];
+---
+
+<div class="pledge-form">
+  <div class="oath card">
+    <p class="oath-text">{t.oath}</p>
+  </div>
+
+  <div class="sign-section" id="sign-section">
+    <input
+      type="text"
+      id="pledge-name"
+      class="pledge-input"
+      placeholder={t.placeholder}
+      maxlength="50"
+      autocomplete="off"
+    />
+    <button class="btn btn-primary" id="pledge-btn">{t.sign}</button>
+  </div>
+
+  <div class="certificate card" id="certificate" style="display:none">
+    <h2>{t.certificate}</h2>
+    <div class="cert-body">
+      <p>{t.certBody}</p>
+      <p class="cert-name" id="cert-name"></p>
+      <p class="cert-date">
+        {t.date}: <span id="cert-date"></span>
+      </p>
+    </div>
+    <p class="cert-status dramatic">{t.signed}</p>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = "pledge-data";
+  const nameInput = document.getElementById("pledge-name") as HTMLInputElement;
+  const pledgeBtn = document.getElementById("pledge-btn");
+  const signSection = document.getElementById("sign-section");
+  const certificate = document.getElementById("certificate");
+  const certName = document.getElementById("cert-name");
+  const certDate = document.getElementById("cert-date");
+
+  function showCertificate(name: string, date: string) {
+    if (signSection) signSection.style.display = "none";
+    if (certificate) certificate.style.display = "block";
+    if (certName) certName.textContent = name;
+    if (certDate) certDate.textContent = date;
+  }
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    const data = JSON.parse(stored);
+    showCertificate(data.name, data.date);
+  }
+
+  pledgeBtn?.addEventListener("click", () => {
+    const name = nameInput?.value.trim();
+    if (!name) {
+      nameInput?.focus();
+      return;
+    }
+    const date = new Date().toLocaleDateString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, date }));
+    showCertificate(name, date);
+  });
+</script>
+
+<style>
+  .pledge-form {
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .oath-text {
+    white-space: pre-line;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+  }
+
+  .sign-section {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  .pledge-input {
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    min-width: 14rem;
+  }
+
+  .pledge-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+
+  .certificate {
+    text-align: center;
+    margin-top: var(--space-lg);
+    border: 3px double var(--color-accent);
+    padding: var(--space-xl);
+  }
+
+  .certificate h2 {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+  }
+
+  .cert-name {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-style: italic;
+    margin: var(--space-md) 0;
+    color: var(--color-accent);
+  }
+
+  .cert-date {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .cert-status {
+    margin-top: var(--space-md);
+  }
+</style>

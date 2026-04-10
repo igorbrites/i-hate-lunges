@@ -1,0 +1,76 @@
+---
+import type { Lang } from "../i18n/utils";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const memes = [
+  {
+    src: "/images/memes/placeholder-1.svg",
+    en: "When the trainer says 'just 3 more sets of lunges'",
+    pt: "Quando o personal fala 'só mais 3 séries de afundo'",
+  },
+  {
+    src: "/images/memes/placeholder-2.svg",
+    en: "Me pretending my legs don't exist on lunge day",
+    pt: "Eu fingindo que minhas pernas não existem no dia de afundo",
+  },
+  {
+    src: "/images/memes/placeholder-3.svg",
+    en: "POV: Someone suggests walking lunges",
+    pt: "POV: Alguém sugere afundo caminhando",
+  },
+];
+---
+
+<div class="meme-gallery">
+  {memes.map((meme) => (
+    <figure class="meme-item card">
+      <img src={meme.src} alt={meme[lang]} loading="lazy" width="400" height="300" />
+      <figcaption>{meme[lang]}</figcaption>
+    </figure>
+  ))}
+  <p class="meme-cta">
+    {lang === "en"
+      ? "Got a lunge meme? We're collecting them. Stay tuned."
+      : "Tem um meme de afundo? Estamos colecionando. Fique ligado."}
+  </p>
+</div>
+
+<style>
+  .meme-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--space-md);
+  }
+
+  .meme-item {
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .meme-item img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-bg-alt);
+  }
+
+  figcaption {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .meme-cta {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-top: var(--space-md);
+  }
+</style>

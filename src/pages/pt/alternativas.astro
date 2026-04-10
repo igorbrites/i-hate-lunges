@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercises = [
+  { emoji: "🏋️", name: "Agachamento", desc: "Toda a queimação no quadríceps, nenhuma crise existencial." },
+  { emoji: "🦵", name: "Leg Press", desc: "Deixe a máquina cuidar do equilíbrio. Você foca em sobreviver." },
+  { emoji: "🏃", name: "Step-Up", desc: "Tipo um afundo, mas você realmente vai a algum lugar. Progresso." },
+  { emoji: "🌉", name: "Elevação de Quadril", desc: "Trabalhe o glúteo deitado. Eficiência máxima." },
+  { emoji: "🚴", name: "Ciclismo", desc: "Sentado. Se movendo. Sem bambolear. A santíssima trindade." },
+  { emoji: "🧘", name: "Cadeirinha na Parede", desc: "Só você, uma parede, e a dignidade silenciosa de não fazer afundo." },
+  { emoji: "🏊", name: "Natação", desc: "Gravidade zero, afundos zero. Paraíso aquático." },
+  { emoji: "🚶", name: "Caminhar", desc: "Literalmente só caminhar. Ainda mais digno que um afundo caminhando." },
+  { emoji: "🧗", name: "Subir Escadas", desc: "Funcional? Sim. Humilhante? Não. Aprovamos." },
+  { emoji: "💃", name: "Dançar", desc: "Expresse-se através de movimentos que não precisam de um observador." },
+];
+---
+
+<BaseLayout title="Alternativas ao Afundo — Eu Odeio Afundo">
+  <section class="alternatives animate-in">
+    <h1>Exercícios Que Não São Afundos</h1>
+    <p class="intro">
+      Contemplem: uma lista curada de <em>exercícios perfeitamente bons</em> que
+      vão trabalhar suas pernas sem destruir seus joelhos, seu equilíbrio ou sua
+      dignidade.
+    </p>
+
+    <ul class="exercise-grid">
+      {exercises.map((ex) => (
+        <li class="card exercise-card">
+          <span class="exercise-emoji">{ex.emoji}</span>
+          <h2>{ex.name}</h2>
+          <p>{ex.desc}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="outro dramatic">
+      Perceba como nenhum desses envolve despencar em direção ao chão em uma
+      única perna trêmula. De nada.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .alternatives h1 {
+    text-align: center;
+  }
+
+  .intro {
+    text-align: center;
+    max-width: 36rem;
+    margin: var(--space-md) auto var(--space-lg);
+    font-size: 1.1rem;
+  }
+
+  .exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-md);
+    list-style: none;
+    padding: 0;
+  }
+
+  .exercise-card {
+    text-align: center;
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .exercise-emoji {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: var(--space-sm);
+  }
+
+  .exercise-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .exercise-card p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .outro {
+    text-align: center;
+    margin-top: var(--space-xl);
+  }
+</style>

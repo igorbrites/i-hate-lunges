@@ -1,0 +1,109 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="The Anti-Lunge Manifesto — I Hate Lunges">
+  <article class="manifesto animate-in">
+    <h1>The Anti-Lunge Manifesto</h1>
+    <p class="subtitle dramatic">
+      A Declaration of Independence from the Most Pointlessly Torturous Exercise
+      Known to Humankind
+    </p>
+
+    <blockquote>
+      "We hold these truths to be self-evident: that all exercises are NOT
+      created equal, and that the lunge was clearly designed by someone who hates
+      knees, balance, and human dignity."
+    </blockquote>
+
+    <h2>Article I: The Lunge Is a Lie</h2>
+    <p>
+      They told us it was "functional movement." They told us it would
+      "strengthen our glutes." They told us a lot of things. You know what else
+      is a functional movement? Walking. To the fridge. Away from lunges.
+    </p>
+
+    <h2>Article II: The Wobble of Shame</h2>
+    <p>
+      No one — and we mean <em>no one</em> — looks graceful doing a lunge. You
+      dip down, one knee hovering perilously above the floor, arms flailing for
+      balance like a baby giraffe on an ice rink. This is not exercise. This is
+      a cry for help.
+    </p>
+
+    <h2>Article III: The False Prophet of Leg Day</h2>
+    <p>
+      Squats exist. Deadlifts exist. The leg press, in all its mechanical glory,
+      exists. Why, then, must we subject ourselves to a movement that
+      simultaneously targets your quads, your ego, and your will to live?
+    </p>
+
+    <h2>Article IV: The Walking Lunge — A Crime Against Corridors</h2>
+    <p>
+      Not content with the static version, some madperson invented the walking
+      lunge. Now you can experience the humiliation across an <em>entire room</em>.
+      You're not "training functional movement." You're performing a
+      slow-motion breakdown in front of twenty strangers.
+    </p>
+
+    <h2>Article V: Our Demand</h2>
+    <p>
+      We, the lunge-averse, the quad-questioning, the balance-challenged —
+      demand recognition. We demand alternatives. We demand the right to never,
+      <em>ever</em>, lunge again.
+    </p>
+    <p class="dramatic" style="text-align: center; margin-top: 2rem;">
+      The floor is not our friend. We will not descend to it on one knee unless
+      we are proposing — and even then, we'll think about it.
+    </p>
+
+    <div class="cta-row">
+      <a href="/pledge/" class="btn btn-primary">Take the Pledge</a>
+      <a href="/alternatives/" class="btn btn-secondary">See Alternatives</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .manifesto {
+    max-width: 38rem;
+    margin: 0 auto;
+  }
+
+  .manifesto h1 {
+    text-align: center;
+  }
+
+  .subtitle {
+    text-align: center;
+    margin: var(--space-sm) 0 var(--space-lg);
+  }
+
+  .manifesto h2 {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .manifesto p {
+    margin-bottom: var(--space-md);
+  }
+
+  blockquote {
+    border-left: 4px solid var(--color-accent);
+    padding: var(--space-md) var(--space-lg);
+    margin: var(--space-lg) 0;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-alt);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    margin-top: var(--space-xl);
+    flex-wrap: wrap;
+  }
+</style>
