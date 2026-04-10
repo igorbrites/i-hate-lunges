@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import type { Lang } from "../i18n/utils";
 
 interface Props {
@@ -7,30 +8,29 @@ interface Props {
 
 const { lang } = Astro.props;
 
-const memes = [
-  {
-    src: "/images/memes/placeholder-1.svg",
-    en: "When the trainer says 'just 3 more sets of lunges'",
-    pt: "Quando o personal fala 'só mais 3 séries de afundo'",
-  },
-  {
-    src: "/images/memes/placeholder-2.svg",
-    en: "Me pretending my legs don't exist on lunge day",
-    pt: "Eu fingindo que minhas pernas não existem no dia de afundo",
-  },
-  {
-    src: "/images/memes/placeholder-3.svg",
-    en: "POV: Someone suggests walking lunges",
-    pt: "POV: Alguém sugere afundo caminhando",
-  },
-];
+const memes = (await getCollection("memes")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
 ---
 
 <div class="meme-gallery">
   {memes.map((meme) => (
     <figure class="meme-item card">
-      <img src={meme.src} alt={meme[lang]} loading="lazy" width="400" height="300" />
-      <figcaption>{meme[lang]}</figcaption>
+      <img
+        src={meme.data.image}
+        alt={meme.data.caption[lang]}
+        loading="lazy"
+        width="400"
+        height="300"
+      />
+      <figcaption>
+        {meme.data.caption[lang]}
+        {meme.data.source && (
+          <a href={meme.data.source} class="meme-source" target="_blank" rel="noopener noreferrer">
+            {meme.data.subreddit ? `r/${meme.data.subreddit}` : "source"}
+          </a>
+        )}
+      </figcaption>
     </figure>
   ))}
   <p class="meme-cta">
@@ -64,6 +64,13 @@ const memes = [
     font-size: 0.9rem;
     color: var(--color-text-muted);
     text-align: center;
+  }
+
+  .meme-source {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: var(--space-xs);
+    opacity: 0.7;
   }
 
   .meme-cta {

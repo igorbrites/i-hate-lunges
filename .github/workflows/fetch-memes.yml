@@ -1,0 +1,72 @@
+name: Fetch Memes
+
+on:
+  schedule:
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  fetch-memes:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Fetch memes from Reddit
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: node scripts/fetch-memes.mjs
+
+    - name: Check for new memes
+      id: check
+      run: |
+        if [[ -n "$(git status --porcelain public/images/memes/ src/data/memes/)" ]]; then
+          echo "has_new=true" >> "$GITHUB_OUTPUT"
+          echo "New memes found"
+        else
+          echo "has_new=false" >> "$GITHUB_OUTPUT"
+          echo "No new memes"
+        fi
+
+    - name: Create PR with new memes
+      if: steps.check.outputs.has_new == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        BRANCH="chore/memes-$(date +%Y%m%d)"
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "$BRANCH"
+        git add public/images/memes/ src/data/memes/
+        git commit -m "chore: add new memes from Reddit
+
+        Automated meme discovery via fetch-memes script."
+        git push origin "$BRANCH"
+
+        SUMMARY=""
+        if [[ -f /tmp/meme-summary.md ]]; then
+          SUMMARY=$(cat /tmp/meme-summary.md)
+        fi
+
+        gh pr create \
+          --base main \
+          --head "$BRANCH" \
+          --title "chore: new memes from Reddit ($(date +%Y-%m-%d))" \
+          --body "## New Memes
+
+        Automated meme discovery found new content from Reddit.
+
+        ### Memes
+
+        ${SUMMARY}
+
+        ---
+
+        Review the images and captions before merging. Merging will trigger a deploy to Cloudflare Pages."
