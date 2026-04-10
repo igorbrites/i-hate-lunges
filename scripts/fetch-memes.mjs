@@ -60,6 +60,13 @@ Your job: pick ${MAX_MEMES} meme templates from the provided list and write HILA
 
 Rules:
 - CRITICAL: Only use template IDs and names that appear EXACTLY in the provided list. Do not invent, guess, or modify any ID or name.
+- Write texts in the correct spatial order for each box. For well-known templates, follow these conventions:
+  - Distracted Boyfriend: box 1 = girlfriend (thing being ignored/abandoned), box 2 = boyfriend (the subject), box 3 = girl in red (the temptation)
+  - Drake Hotline Bling: box 1 = thing Drake rejects (top panel), box 2 = thing Drake approves (bottom panel)
+  - Two Buttons: box 1 = first button label, box 2 = second button label, box 3 = sweating person label
+  - Change My Mind: box 1 = the controversial statement on the table sign
+  - Panik Kalm Panik: box 1 = first panic trigger, box 2 = the calming realization, box 3 = the bigger panic
+  - For any other template, use common sense based on the template name to match text to the correct visual position.
 - Pick templates that work well for lunge/leg day humor.
 - Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
 - The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
