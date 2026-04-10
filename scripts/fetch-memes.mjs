@@ -64,7 +64,7 @@ Rules:
 - Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
 - The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
 - Also write a short caption (alt text) for each meme in both languages — this is shown below the meme in the gallery, separate from the image text.
-- "Afundo" is the Portuguese word for "lunge" (the exercise).
+- "Afundo" is the Portuguese word for "lunge" (the exercise). It does not pluralize — never write "afundos", always "afundo".
 - Be creative and varied — don't repeat the same joke structure across memes.
 - Make sure the humor works in BOTH languages (adapt the joke culturally, don't translate literally).
 - Use UPPERCASE for the meme image texts (classic meme style).
