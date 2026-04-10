@@ -1,74 +1,12 @@
 #!/usr/bin/env node
 
 import { writeFile, readdir, mkdir } from "node:fs/promises";
-import { join, extname } from "node:path";
+import { join } from "node:path";
 import { createHash } from "node:crypto";
 
-const MEME_SUBREDDITS = ["GymMemes", "gymmemes", "fitnessmemes", "gymhumor"];
-const GENERAL_SUBREDDITS = ["gym", "fitness", "bodybuilding"];
-const KEYWORDS_REGEX =
-  /\b(lunge|lunges|lunging|leg\s?day|split\s?squat|bulgarian|step[\s-]?up|never\s?skip|quad|glute|knee|leg\s?press|squat)\b/i;
 const MAX_MEMES = 5;
 const IMAGE_DIR = "public/images/memes";
 const DATA_DIR = "src/data/memes";
-const REDDIT_USER_AGENT = "i-hate-lunges-bot/1.0";
-
-async function fetchSubreddit(subreddit, mode) {
-  const url =
-    mode === "browse"
-      ? `https://www.reddit.com/r/${subreddit}/top.json?t=month&limit=100`
-      : `https://www.reddit.com/r/${subreddit}/search.json?q=lunge+OR+lunges+OR+leg+day&restrict_sr=1&sort=top&t=year&limit=50`;
-
-  const res = await fetch(url, {
-    headers: { "User-Agent": REDDIT_USER_AGENT },
-  });
-
-  if (!res.ok) {
-    console.warn(`Reddit failed for r/${subreddit}: ${res.status}`);
-    return [];
-  }
-
-  const data = await res.json();
-  return data.data?.children || [];
-}
-
-function isImagePost(post) {
-  const url = post.data.url || "";
-  const hint = post.data.post_hint || "";
-  if (hint === "image") return true;
-  return /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
-}
-
-function getImageUrl(post) {
-  const url = post.data.url;
-  if (/i\.redd\.it|i\.imgur\.com/.test(url)) return url;
-  if (post.data.preview?.images?.[0]?.source?.url) {
-    return post.data.preview.images[0].source.url.replace(/&amp;/g, "&");
-  }
-  return url;
-}
-
-async function downloadImage(imageUrl, redditId) {
-  const res = await fetch(imageUrl, {
-    headers: { "User-Agent": REDDIT_USER_AGENT },
-  });
-
-  if (!res.ok) throw new Error(`Failed to download: ${res.status}`);
-
-  const contentType = res.headers.get("content-type") || "";
-  let ext = extname(new URL(imageUrl).pathname).split("?")[0] || ".jpg";
-  if (contentType.includes("png")) ext = ".png";
-  else if (contentType.includes("gif")) ext = ".gif";
-  else if (contentType.includes("webp")) ext = ".webp";
-
-  const buffer = Buffer.from(await res.arrayBuffer());
-  const hash = createHash("md5").update(buffer).digest("hex").slice(0, 8);
-  const filename = `${redditId}-${hash}${ext}`;
-  const filepath = join(IMAGE_DIR, filename);
-
-  await writeFile(filepath, buffer);
-  return { filename, filepath };
-}
 
 async function callLLM(messages, token, temperature = 0.7) {
   const res = await fetch(
@@ -96,66 +34,113 @@ async function callLLM(messages, token, temperature = 0.7) {
   return data.choices[0].message.content.trim();
 }
 
-async function scoreMemeRelevance(title, subreddit, token) {
+async function fetchTemplates() {
+  const res = await fetch("https://api.imgflip.com/get_memes");
+  if (!res.ok) throw new Error(`Imgflip API error: ${res.status}`);
+  const data = await res.json();
+  if (!data.success)
+    throw new Error(`Imgflip API error: ${data.error_message}`);
+  return data.data.memes;
+}
+
+async function generateMemeIdeas(templates, token) {
+  const templateList = templates.map((t) => ({
+    id: t.id,
+    name: t.name,
+    box_count: t.box_count,
+  }));
+
   const raw = await callLLM(
     [
       {
         role: "system",
-        content: `You are a meme quality judge for "I Hate Lunges", a humor site about hating the lunge exercise. Rate how relevant and funny a Reddit post would be for this site.
+        content: `You are a comedy writer for "I Hate Lunges" / "Eu Odeio Afundo", a humor site about hating the lunge exercise.
 
-Highly relevant topics: lunges, leg day pain, skipping leg day, quad/glute soreness, lunge variations (Bulgarian split squat, walking lunges), gym memes about legs.
-Somewhat relevant: general leg exercises, squat humor, gym culture memes about lower body.
-Not relevant: upper body, diet, progress pics, form checks, non-meme content, bodybuilding competition content.
+Your job: pick ${MAX_MEMES} meme templates from the provided list and write HILARIOUS bilingual captions (English + Brazilian Portuguese).
 
-The post must be an actual MEME (funny image macro, reaction image, or humorous format) — not a selfie, progress photo, video screenshot, or gym photo without humor.
+Rules:
+- Pick templates that work well for lunge/leg day humor.
+- Each template has a "box_count" — that's how many text boxes it has. Write exactly that many texts per language.
+- The texts are the actual words that appear ON the meme image. Keep them short and punchy — they must fit in small text boxes.
+- Also write a short caption (alt text) for each meme in both languages — this is shown below the meme in the gallery, separate from the image text.
+- "Afundo" is the Portuguese word for "lunge" (the exercise).
+- Be creative and varied — don't repeat the same joke structure across memes.
+- Make sure the humor works in BOTH languages (adapt the joke culturally, don't translate literally).
+- Use UPPERCASE for the meme image texts (classic meme style).
 
-Return ONLY a JSON object: {"score": <1-10>, "reason": "<brief reason>"}`,
+Return ONLY a JSON array (no markdown fences, no explanation):
+[
+  {
+    "templateId": "12345",
+    "templateName": "Template Name",
+    "boxes_en": ["TOP TEXT", "BOTTOM TEXT"],
+    "boxes_pt": ["TEXTO DE CIMA", "TEXTO DE BAIXO"],
+    "caption_en": "Short funny description",
+    "caption_pt": "Descrição curta e engraçada"
+  }
+]`,
       },
       {
         role: "user",
-        content: `Subreddit: r/${subreddit}\nTitle: "${title}"`,
+        content: `Here are the available meme templates:\n\n${JSON.stringify(templateList, null, 2)}`,
       },
     ],
     token,
-    0.3,
+    1.0,
   );
 
-  const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) return { score: 0, reason: "parse error" };
+  const match = raw.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error(`Could not parse meme ideas JSON: ${raw}`);
   return JSON.parse(match[0]);
 }
 
-async function generateCaptions(title, token) {
-  const raw = await callLLM(
-    [
-      {
-        role: "system",
-        content: `You write funny, short captions for anti-lunge memes. The site "I Hate Lunges" / "Eu Odeio Afundo" is a humor site about hating the lunge exercise. Return a JSON object with "en" and "pt" keys. Each caption should be a short, witty one-liner (under 80 chars). "Afundo" is the Portuguese word for "lunge" (the exercise). Do not include markdown formatting, only the raw JSON.`,
-      },
-      {
-        role: "user",
-        content: `Reddit post title: "${title}"\n\nWrite a funny bilingual caption for this meme.`,
-      },
-    ],
-    token,
-    0.8,
-  );
+async function captionImage(templateId, texts, username, password) {
+  const params = new URLSearchParams({
+    template_id: templateId,
+    username,
+    password,
+  });
 
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`Could not parse caption JSON: ${raw}`);
-  return JSON.parse(jsonMatch[0]);
+  texts.forEach((text, i) => {
+    params.append(`boxes[${i}][text]`, text);
+  });
+
+  const res = await fetch("https://api.imgflip.com/caption_image", {
+    method: "POST",
+    body: params,
+  });
+
+  const data = await res.json();
+  if (!data.success)
+    throw new Error(`Imgflip caption error: ${data.error_message}`);
+  return data.data.url;
 }
 
-async function getExistingRedditIds() {
+async function downloadImage(imageUrl, name) {
+  const res = await fetch(imageUrl);
+  if (!res.ok) throw new Error(`Failed to download image: ${res.status}`);
+
+  const buffer = Buffer.from(await res.arrayBuffer());
+  const hash = createHash("md5").update(buffer).digest("hex").slice(0, 8);
+  const filename = `${name}-${hash}.jpg`;
+  await writeFile(join(IMAGE_DIR, filename), buffer);
+  return filename;
+}
+
+async function getExistingTemplateIds() {
   const files = await readdir(DATA_DIR).catch(() => []);
   const ids = new Set();
 
   for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-    const content = await import(join(process.cwd(), DATA_DIR, file), {
-      with: { type: "json" },
-    }).catch(() => null);
-    if (content?.default?.redditId) ids.add(content.default.redditId);
+    if (!file.endsWith(".json") || file.startsWith("placeholder")) continue;
+    try {
+      const content = await import(join(process.cwd(), DATA_DIR, file), {
+        with: { type: "json" },
+      });
+      if (content?.default?.templateId) ids.add(content.default.templateId);
+    } catch {
+      // skip unreadable files
+    }
   }
 
   return ids;
@@ -163,128 +148,95 @@ async function getExistingRedditIds() {
 
 async function main() {
   const token = process.env.GITHUB_TOKEN;
+  const imgflipUser = process.env.IMGFLIP_USERNAME;
+  const imgflipPass = process.env.IMGFLIP_PASSWORD;
+
   if (!token) {
-    console.error("GITHUB_TOKEN environment variable is required");
+    console.error("GITHUB_TOKEN is required");
+    process.exit(1);
+  }
+  if (!imgflipUser || !imgflipPass) {
+    console.error("IMGFLIP_USERNAME and IMGFLIP_PASSWORD are required");
     process.exit(1);
   }
 
   await mkdir(IMAGE_DIR, { recursive: true });
   await mkdir(DATA_DIR, { recursive: true });
 
-  const existingIds = await getExistingRedditIds();
+  const existingIds = await getExistingTemplateIds();
   console.log(`Found ${existingIds.size} existing memes`);
 
-  // Phase 1: Browse meme-dedicated subs for top posts (high signal)
-  const allPosts = [];
-  for (const sub of MEME_SUBREDDITS) {
-    console.log(`Browsing top posts in r/${sub}...`);
-    const posts = await fetchSubreddit(sub, "browse");
-    allPosts.push(...posts);
-    await new Promise((r) => setTimeout(r, 2000));
-  }
+  console.log("Fetching meme templates from Imgflip...");
+  const templates = await fetchTemplates();
+  console.log(`Got ${templates.length} templates`);
 
-  // Phase 2: Search general subs with keywords (lower signal, LLM filters)
-  for (const sub of GENERAL_SUBREDDITS) {
-    console.log(`Searching r/${sub} for lunge/leg day keywords...`);
-    const posts = await fetchSubreddit(sub, "search");
-    allPosts.push(...posts);
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-
-  // Deduplicate and basic filters
-  const seen = new Set();
-  const candidates = allPosts
-    .filter(isImagePost)
-    .filter((p) => !existingIds.has(p.data.id))
-    .filter((p) => !p.data.over_18)
-    .filter((p) => p.data.score > 10)
-    .filter((p) => {
-      if (seen.has(p.data.id)) return false;
-      seen.add(p.data.id);
-      return true;
-    })
-    .sort((a, b) => b.data.score - a.data.score);
-
-  console.log(`Found ${candidates.length} image candidates after basic filtering`);
-
-  // Phase 3: LLM relevance scoring
-  const MIN_RELEVANCE_SCORE = 6;
-  const scored = [];
-
-  for (const post of candidates) {
-    const { title, subreddit, id } = post.data;
-    const isMemeSubreddit = MEME_SUBREDDITS.some(
-      (s) => s.toLowerCase() === subreddit.toLowerCase(),
-    );
-
-    // Meme subs: only require keyword match (already curated meme content)
-    // General subs: always score with LLM
-    if (isMemeSubreddit && KEYWORDS_REGEX.test(title)) {
-      scored.push({ post, score: 8, reason: "keyword match in meme sub" });
-      console.log(`  ✓ [8] r/${subreddit}: "${title}" (keyword match)`);
-    } else {
-      try {
-        const result = await scoreMemeRelevance(title, subreddit, token);
-        console.log(
-          `  ${result.score >= MIN_RELEVANCE_SCORE ? "✓" : "✗"} [${result.score}] r/${subreddit}: "${title}" — ${result.reason}`,
-        );
-        if (result.score >= MIN_RELEVANCE_SCORE) {
-          scored.push({ post, ...result });
-        }
-        await new Promise((r) => setTimeout(r, 500));
-      } catch (err) {
-        console.warn(`  ⚠ LLM scoring failed for "${title}": ${err.message}`);
-      }
-    }
-
-    if (scored.length >= MAX_MEMES * 2) break;
-  }
-
-  scored.sort((a, b) => b.score - a.score);
-  const selected = scored.slice(0, MAX_MEMES);
-
+  const available = templates.filter((t) => !existingIds.has(t.id));
   console.log(
-    `\n${scored.length} posts passed relevance filter, selecting top ${selected.length}`,
+    `${available.length} templates available (${existingIds.size} already used)`,
   );
 
-  // Phase 4: Download and caption
-  const results = [];
-  for (const { post } of selected) {
-    const { id, title, subreddit, author, permalink } = post.data;
-    const imageUrl = getImageUrl(post);
+  console.log("Asking LLM to pick templates and write captions...");
+  const ideas = await generateMemeIdeas(available, token);
+  console.log(`LLM generated ${ideas.length} meme ideas`);
 
-    console.log(`Processing: "${title}" from r/${subreddit}`);
+  const results = [];
+  for (const idea of ideas) {
+    const slug = idea.templateName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+$/, "");
+    console.log(`\nGenerating: "${idea.templateName}" (${slug})`);
 
     try {
-      const { filename } = await downloadImage(imageUrl, id);
-      const caption = await generateCaptions(title, token);
+      console.log("  Creating EN image...");
+      const enUrl = await captionImage(
+        idea.templateId,
+        idea.boxes_en,
+        imgflipUser,
+        imgflipPass,
+      );
+      console.log(`  EN: ${enUrl}`);
+
+      console.log("  Creating PT image...");
+      const ptUrl = await captionImage(
+        idea.templateId,
+        idea.boxes_pt,
+        imgflipUser,
+        imgflipPass,
+      );
+      console.log(`  PT: ${ptUrl}`);
+
+      const enFilename = await downloadImage(enUrl, `${slug}-en`);
+      const ptFilename = await downloadImage(ptUrl, `${slug}-pt`);
 
       const entry = {
-        image: `/images/memes/${filename}`,
-        caption,
-        source: `https://reddit.com${permalink}`,
-        subreddit,
-        redditId: id,
-        author: `u/${author}`,
+        image: {
+          en: `/images/memes/${enFilename}`,
+          pt: `/images/memes/${ptFilename}`,
+        },
+        caption: {
+          en: idea.caption_en,
+          pt: idea.caption_pt,
+        },
+        templateId: idea.templateId,
+        templateName: idea.templateName,
         date: new Date().toISOString().split("T")[0],
       };
 
-      const entryPath = join(DATA_DIR, `${id}.json`);
+      const entryPath = join(DATA_DIR, `${slug}.json`);
       await writeFile(entryPath, JSON.stringify(entry, null, 2) + "\n");
       results.push(entry);
-      console.log(`  ✓ Saved ${filename}`);
+      console.log(`  ✓ Saved ${slug}.json`);
     } catch (err) {
-      console.warn(`  ✗ Failed (${imageUrl}): ${err.message}`);
+      console.warn(`  ✗ Failed: ${err.message}`);
     }
-
-    await new Promise((r) => setTimeout(r, 1000));
   }
 
-  console.log(`\nDone: ${results.length} new memes added`);
+  console.log(`\nDone: ${results.length} new memes generated`);
 
   if (results.length > 0) {
     const summary = results
-      .map((r) => `- ${r.caption.en} (r/${r.subreddit})`)
+      .map((r) => `- **${r.templateName}**: ${r.caption.en}`)
       .join("\n");
     await writeFile("/tmp/meme-summary.md", summary + "\n");
   }

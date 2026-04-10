@@ -17,7 +17,7 @@ const memes = (await getCollection("memes")).sort(
   {memes.map((meme) => (
     <figure class="meme-item card">
       <img
-        src={meme.data.image}
+        src={meme.data.image[lang]}
         alt={meme.data.caption[lang]}
         loading="lazy"
         width="400"
@@ -25,11 +25,6 @@ const memes = (await getCollection("memes")).sort(
       />
       <figcaption>
         {meme.data.caption[lang]}
-        {meme.data.source && (
-          <a href={meme.data.source} class="meme-source" target="_blank" rel="noopener noreferrer">
-            {meme.data.subreddit ? `r/${meme.data.subreddit}` : "source"}
-          </a>
-        )}
       </figcaption>
     </figure>
   ))}
@@ -64,13 +59,6 @@ const memes = (await getCollection("memes")).sort(
     font-size: 0.9rem;
     color: var(--color-text-muted);
     text-align: center;
-  }
-
-  .meme-source {
-    display: block;
-    font-size: 0.75rem;
-    margin-top: var(--space-xs);
-    opacity: 0.7;
   }
 
   .meme-cta {

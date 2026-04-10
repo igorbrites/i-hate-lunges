@@ -1,5 +1,8 @@
 {
-  "image": "/images/memes/placeholder-1.svg",
+  "image": {
+    "en": "/images/memes/placeholder-1.svg",
+    "pt": "/images/memes/placeholder-1.svg"
+  },
   "caption": {
     "en": "When the trainer says 'just 3 more sets of lunges'",
     "pt": "Quando o personal fala 'só mais 3 séries de afundo'"
