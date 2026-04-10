@@ -9,6 +9,7 @@ export const routes: RouteEntry[] = [
   { en: "/", pt: "/" },
   { en: "/manifesto/", pt: "/manifesto/" },
   { en: "/alternatives/", pt: "/alternativas/" },
+  { en: "/in-disguise/", pt: "/disfarce/" },
   { en: "/memes/", pt: "/memes/" },
   { en: "/counter/", pt: "/contador/" },
   { en: "/pledge/", pt: "/juramento/" },

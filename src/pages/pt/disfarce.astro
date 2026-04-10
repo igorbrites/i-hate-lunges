@@ -1,0 +1,100 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const disfarce = [
+  { emoji: "🇧🇬", name: "Agachamento Búlgaro", veredito: "Afundo com Banco", desc: "Um afundo com o pé de trás no banco. Adicionaram um móvel pra te distrair. Continua sendo afundo." },
+  { emoji: "🔀", name: "Split Squat", veredito: "Afundo Parado", desc: "Um afundo que não se move. Literalmente só renomearam. Zero esforço pra esconder." },
+  { emoji: "🏃", name: "Step-Up", veredito: "Afundo Vertical", desc: "Um afundo apontado pro céu. Você ainda está caindo em agonia de joelho unilateral — só que pra cima." },
+  { emoji: "🔄", name: "Afundo Reverso", veredito: "Afundo de Costas", desc: "É um afundo. Mas pra trás. Revolucionário? Não. Ainda é afundo? Com certeza." },
+  { emoji: "🚶", name: "Afundo Caminhando", veredito: "Afundo Migratório", desc: "Um afundo que viaja. Agora seu sofrimento cobre mais terreno. Que delícia." },
+  { emoji: "🤸", name: "Afundo com Salto", veredito: "Afundo Aéreo", desc: "Um afundo com tempo de voo. Porque destruição regular de joelho não era extrema o suficiente." },
+  { emoji: "🎀", name: "Afundo Cruzado", veredito: "Afundo Chique", desc: "Um afundo vestido pra festa. Cruzar a perna atrás não torna elegante. Torna pior." },
+  { emoji: "📐", name: "Afundo Lateral", veredito: "Afundo de Lado", desc: "Um afundo que vai pro lado. Nova direção, mesma traição." },
+  { emoji: "⬇️", name: "Afundo em Déficit", veredito: "Afundo Mais Fundo", desc: "Um afundo de uma superfície elevada. Mais amplitude de movimento significa mais amplitude de sofrimento." },
+  { emoji: "🕐", name: "Afundo Relógio", veredito: "Afundo Omnidirecional", desc: "Afundos em todas as direções. 360 graus de arrependimento." },
+  { emoji: "🔫", name: "Pistol Squat", veredito: "Primo do Afundo", desc: "Uma perna só. Flexão profunda de joelho. Requer equilíbrio que você não tem. Se parece afundo e dói como afundo…" },
+  { emoji: "📦", name: "Box Step-Over", veredito: "Afundo Duplo", desc: "Sobe e desce. São dois afundos. Cobraram em dobro." },
+];
+---
+
+<BaseLayout title="Afundos Disfarçados — Eu Odeio Afundo">
+  <section class="disguise animate-in">
+    <h1>🕵️ Afundos Disfarçados</h1>
+    <p class="intro">
+      A indústria fitness acha que pode nos enganar colocando um nome bonito num afundo.
+      <strong>Nós enxergamos através das mentiras.</strong> Aqui está cada exercício que
+      secretamente é só um afundo usando bigode falso.
+    </p>
+
+    <ul class="disguise-grid">
+      {disfarce.map((ex) => (
+        <li class="card disguise-card">
+          <span class="disguise-emoji">{ex.emoji}</span>
+          <h2>{ex.name}</h2>
+          <span class="verdict">🚨 Veredito: {ex.veredito}</span>
+          <p>{ex.desc}</p>
+        </li>
+      ))}
+    </ul>
+
+    <p class="outro dramatic">
+      Se alguém sugerir qualquer um desses, estão tentando te fazer fazer afundo.
+      Não se deixe enganar. Fique vigilante.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .disguise h1 {
+    text-align: center;
+  }
+
+  .intro {
+    text-align: center;
+    max-width: 38rem;
+    margin: var(--space-md) auto var(--space-lg);
+    font-size: 1.1rem;
+  }
+
+  .disguise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-md);
+    list-style: none;
+    padding: 0;
+  }
+
+  .disguise-card {
+    text-align: center;
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .disguise-emoji {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: var(--space-sm);
+  }
+
+  .disguise-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .verdict {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .disguise-card p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .outro {
+    text-align: center;
+    margin-top: var(--space-xl);
+  }
+</style>
