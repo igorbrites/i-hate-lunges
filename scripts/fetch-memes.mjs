@@ -18,7 +18,7 @@ async function callLLM(messages, token, temperature = 0.7) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
+        model: "openai/gpt-4.1-mini",
         temperature,
         messages,
       }),
