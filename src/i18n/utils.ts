@@ -31,6 +31,7 @@ export function getNavLinks(lang: Lang): { label: string; href: string }[] {
   return [
     { label: t(lang, "nav.manifesto"), href: getLocalePath(lang, "/manifesto/") },
     { label: t(lang, "nav.alternatives"), href: getLocalePath(lang, "/alternatives/") },
+    { label: t(lang, "nav.disguise"), href: getLocalePath(lang, "/in-disguise/") },
     { label: t(lang, "nav.memes"), href: getLocalePath(lang, "/memes/") },
     { label: t(lang, "nav.counter"), href: getLocalePath(lang, "/counter/") },
     { label: t(lang, "nav.pledge"), href: getLocalePath(lang, "/pledge/") },
