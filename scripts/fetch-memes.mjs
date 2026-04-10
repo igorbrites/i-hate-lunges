@@ -11,16 +11,21 @@ const KEYWORDS_REGEX =
 const MAX_MEMES = 5;
 const IMAGE_DIR = "public/images/memes";
 const DATA_DIR = "src/data/memes";
-const REDDIT_USER_AGENT = "i-hate-lunges-bot/1.0";
+const REDDIT_USER_AGENT =
+  "Mozilla/5.0 (compatible; i-hate-lunges/1.0; +https://ihatelunges.com)";
 
 async function fetchSubreddit(subreddit, mode) {
   const url =
     mode === "browse"
-      ? `https://www.reddit.com/r/${subreddit}/top.json?t=month&limit=100`
-      : `https://www.reddit.com/r/${subreddit}/search.json?q=lunge+OR+lunges+OR+leg+day&restrict_sr=1&sort=top&t=year&limit=50`;
+      ? `https://old.reddit.com/r/${subreddit}/top.json?t=month&limit=100&raw_json=1`
+      : `https://old.reddit.com/r/${subreddit}/search.json?q=lunge+OR+lunges+OR+leg+day&restrict_sr=1&sort=top&t=year&limit=50&raw_json=1`;
 
   const res = await fetch(url, {
-    headers: { "User-Agent": REDDIT_USER_AGENT },
+    headers: {
+      "User-Agent": REDDIT_USER_AGENT,
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5",
+    },
   });
 
   if (!res.ok) {
