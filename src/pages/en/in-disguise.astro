@@ -2,18 +2,19 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const disguised = [
-  { emoji: "🇧🇬", name: "Bulgarian Split Squat", verdict: "Split Squat", desc: "A lunge with your back foot on a bench. They added furniture to distract you. It's still a lunge." },
-  { emoji: "🔀", name: "Split Squat", verdict: "Stationary Lunge", desc: "A lunge that doesn't move. They literally just renamed it. Zero effort to hide it." },
-  { emoji: "🏃", name: "Step-Ups", verdict: "Vertical Lunge", desc: "A lunge aimed at the sky. You're still dropping into single-leg knee agony — just upward." },
-  { emoji: "🔄", name: "Reverse Lunge", verdict: "Backwards Lunge", desc: "It's a lunge. But backwards. Revolutionary? No. Still a lunge? Absolutely." },
-  { emoji: "🚶", name: "Walking Lunge", verdict: "Migratory Lunge", desc: "A lunge that travels. Now your suffering covers more ground. How delightful." },
-  { emoji: "🤸", name: "Jump Lunge", verdict: "Airborne Lunge", desc: "A lunge with flight time. Because regular knee destruction wasn't extreme enough." },
-  { emoji: "🎀", name: "Curtsy Lunge", verdict: "Fancy Lunge", desc: "A lunge dressed up for the ball. Crossing your leg behind you doesn't make it elegant. It makes it worse." },
-  { emoji: "📐", name: "Lateral Lunge", verdict: "Sideways Lunge", desc: "A lunge that goes sideways. New direction, same betrayal." },
-  { emoji: "⬇️", name: "Deficit Lunge", verdict: "Deeper Lunge", desc: "A lunge from a raised surface. More range of motion means more range of suffering." },
-  { emoji: "🕐", name: "Clock Lunge", verdict: "Omnidirectional Lunge", desc: "Lunges in every direction. 360 degrees of regret." },
-  { emoji: "🔫", name: "Pistol Squat", verdict: "Lunge's Cousin", desc: "Single-leg. Deep knee bend. Requires balance you don't have. If it walks like a lunge and hurts like a lunge…" },
-  { emoji: "📦", name: "Box Step-Over", verdict: "Double Lunge", desc: "Step up, step down. That's two lunges. You've been double-charged." },
+  { emoji: "🇧🇬", name: "Bulgarian Split Squat", verdict: "Split Squat", desc: "A lunge with your back foot on a bench. They added furniture to distract you. It's still a lunge.", image: "/images/exercises/bulgarian-split-squat.jpeg" },
+  { emoji: "🔀", name: "Split Squat", verdict: "Stationary Lunge", desc: "A lunge that doesn't move. They literally just renamed it. Zero effort to hide it.", image: "/images/exercises/split-squat.jpg" },
+  { emoji: "🏃", name: "Step-Ups", verdict: "Vertical Lunge", desc: "A lunge aimed at the sky. You're still dropping into single-leg knee agony — just upward.", image: "/images/exercises/step-ups.jpg" },
+  { emoji: "🔄", name: "Reverse Lunge", verdict: "Backwards Lunge", desc: "It's a lunge. But backwards. Revolutionary? No. Still a lunge? Absolutely.", image: "/images/exercises/reverse-lunge.jpeg" },
+  { emoji: "🚶", name: "Walking Lunge", verdict: "Migratory Lunge", desc: "A lunge that travels. Now your suffering covers more ground. How delightful.", image: "/images/exercises/walking-lunge.jpeg" },
+  { emoji: "🤸", name: "Jump Lunge", verdict: "Airborne Lunge", desc: "A lunge with flight time. Because regular knee destruction wasn't extreme enough.", image: "/images/exercises/jump-lunge.jpeg" },
+  { emoji: "🎀", name: "Curtsy Lunge", verdict: "Fancy Lunge", desc: "A lunge dressed up for the ball. Crossing your leg behind you doesn't make it elegant. It makes it worse.", image: "/images/exercises/curtsy-lunge.jpg" },
+  { emoji: "📐", name: "Lateral Lunge", verdict: "Sideways Lunge", desc: "A lunge that goes sideways. New direction, same betrayal.", image: "/images/exercises/lateral-lunge.jpeg" },
+  { emoji: "⬇️", name: "Deficit Lunge", verdict: "Deeper Lunge", desc: "A lunge from a raised surface. More range of motion means more range of suffering.", image: "/images/exercises/deficit-lunge.jpeg" },
+  { emoji: "🕐", name: "Clock Lunge", verdict: "Omnidirectional Lunge", desc: "Lunges in every direction. 360 degrees of regret.", image: "/images/exercises/clock-lunge.jpeg" },
+  { emoji: "🔫", name: "Pistol Squat", verdict: "Lunge's Cousin", desc: "Single-leg. Deep knee bend. Requires balance you don't have. If it walks like a lunge and hurts like a lunge…", image: "/images/exercises/pistol-squat.jpg" },
+  { emoji: "📦", name: "Box Step-Over", verdict: "Double Lunge", desc: "Step up, step down. That's two lunges. You've been double-charged.", image: "/images/exercises/box-step-over.jpeg" },
+  { emoji: "🧗", name: "Stair Climbing", verdict: "Repeated Lunge", desc: "Every step is a single-leg squat. Every flight is a lunge gauntlet. The stairs were a trap all along.", image: "/images/exercises/stair-climbing.jpeg" },
 ];
 ---
 
@@ -29,10 +30,15 @@ const disguised = [
     <ul class="disguise-grid">
       {disguised.map((ex) => (
         <li class="card disguise-card">
-          <span class="disguise-emoji">{ex.emoji}</span>
-          <h2>{ex.name}</h2>
-          <span class="verdict">🚨 Verdict: {ex.verdict}</span>
-          <p>{ex.desc}</p>
+          {ex.image
+            ? <img src={ex.image} alt={ex.name} loading="lazy" />
+            : <span class="disguise-emoji">{ex.emoji}</span>
+          }
+          <div class="disguise-body">
+            <h2>{ex.name}</h2>
+            <span class="verdict">🚨 Verdict: {ex.verdict}</span>
+            <p>{ex.desc}</p>
+          </div>
         </li>
       ))}
     </ul>
@@ -66,13 +72,25 @@ const disguised = [
 
   .disguise-card {
     text-align: center;
-    padding: var(--space-lg) var(--space-md);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .disguise-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: var(--color-bg-alt);
   }
 
   .disguise-emoji {
     font-size: 2.5rem;
     display: block;
-    margin-bottom: var(--space-sm);
+    padding-top: var(--space-lg);
+  }
+
+  .disguise-body {
+    padding: var(--space-sm) var(--space-md) var(--space-lg);
   }
 
   .disguise-card h2 {

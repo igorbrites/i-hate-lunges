@@ -16,13 +16,15 @@ const memes = (await getCollection("memes")).sort(
 <div class="meme-gallery">
   {memes.map((meme) => (
     <figure class="meme-item card">
-      <img
-        src={meme.data.image[lang]}
-        alt={meme.data.caption[lang]}
-        loading="lazy"
-        width="400"
-        height="300"
-      />
+      <button class="meme-trigger" data-src={meme.data.image[lang]} data-alt={meme.data.caption[lang]} aria-label="Expand image">
+        <img
+          src={meme.data.image[lang]}
+          alt={meme.data.caption[lang]}
+          loading="lazy"
+          width="400"
+          height="300"
+        />
+      </button>
       <figcaption>
         {meme.data.caption[lang]}
       </figcaption>
@@ -34,6 +36,27 @@ const memes = (await getCollection("memes")).sort(
       : "Tem um meme de afundo? Estamos colecionando. Fique ligado."}
   </p>
 </div>
+
+<dialog id="meme-lightbox" aria-label="Meme fullscreen view">
+  <img id="lightbox-img" src="" alt="" />
+</dialog>
+
+<script>
+  const lightbox = document.getElementById("meme-lightbox") as HTMLDialogElement;
+  const lightboxImg = document.getElementById("lightbox-img") as HTMLImageElement;
+
+  document.querySelectorAll<HTMLButtonElement>(".meme-trigger").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      lightboxImg.src = btn.dataset.src!;
+      lightboxImg.alt = btn.dataset.alt!;
+      lightbox.showModal();
+    });
+  });
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) lightbox.close();
+  });
+</script>
 
 <style>
   .meme-gallery {
@@ -47,11 +70,47 @@ const memes = (await getCollection("memes")).sort(
     padding: 0;
   }
 
+  .meme-trigger {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: zoom-in;
+  }
+
   .meme-item img {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     background-color: var(--color-bg-alt);
+    transition: opacity 0.2s ease;
+  }
+
+  .meme-trigger:hover img {
+    opacity: 0.9;
+  }
+
+  #meme-lightbox {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0;
+    background: transparent;
+    max-width: min(90vw, 800px);
+    max-height: 90vh;
+  }
+
+  #meme-lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+    cursor: zoom-out;
+  }
+
+  #meme-lightbox img {
+    display: block;
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: var(--radius-md);
   }
 
   figcaption {
