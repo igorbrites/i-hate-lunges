@@ -4,32 +4,27 @@ import { writeFile, readdir, mkdir } from "node:fs/promises";
 import { join, extname } from "node:path";
 import { createHash } from "node:crypto";
 
-const SUBREDDITS = ["GymMemes", "gymmemes", "fitnessmemes", "gym"];
-const KEYWORDS = [
-  "lunge",
-  "lunges",
-  "lunging",
-  "leg day",
-  "split squat",
-  "bulgarian",
-  "step up",
-  "step-up",
-];
+const MEME_SUBREDDITS = ["GymMemes", "gymmemes", "fitnessmemes", "gymhumor"];
+const GENERAL_SUBREDDITS = ["gym", "fitness", "bodybuilding"];
+const KEYWORDS_REGEX =
+  /\b(lunge|lunges|lunging|leg\s?day|split\s?squat|bulgarian|step[\s-]?up|never\s?skip|quad|glute|knee|leg\s?press|squat)\b/i;
 const MAX_MEMES = 5;
 const IMAGE_DIR = "public/images/memes";
 const DATA_DIR = "src/data/memes";
 const REDDIT_USER_AGENT = "i-hate-lunges-bot/1.0";
 
-async function searchReddit(subreddit) {
-  const query = KEYWORDS.join("+OR+");
-  const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${query}&restrict_sr=1&sort=top&t=week&limit=25`;
+async function fetchSubreddit(subreddit, mode) {
+  const url =
+    mode === "browse"
+      ? `https://www.reddit.com/r/${subreddit}/top.json?t=month&limit=100`
+      : `https://www.reddit.com/r/${subreddit}/search.json?q=lunge+OR+lunges+OR+leg+day&restrict_sr=1&sort=top&t=year&limit=50`;
 
   const res = await fetch(url, {
     headers: { "User-Agent": REDDIT_USER_AGENT },
   });
 
   if (!res.ok) {
-    console.warn(`Reddit search failed for r/${subreddit}: ${res.status}`);
+    console.warn(`Reddit failed for r/${subreddit}: ${res.status}`);
     return [];
   }
 
@@ -75,40 +70,79 @@ async function downloadImage(imageUrl, redditId) {
   return { filename, filepath };
 }
 
-async function generateCaptions(title, token) {
-  const res = await fetch("https://models.inference.ai.github.com/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+async function callLLM(messages, token, temperature = 0.7) {
+  const res = await fetch(
+    "https://models.inference.ai.github.com/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature,
+        messages,
+      }),
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      temperature: 0.8,
-      messages: [
-        {
-          role: "system",
-          content: `You write funny, short captions for anti-lunge memes. The site "I Hate Lunges" / "Eu Odeio Afundo" is a humor site about hating the lunge exercise. Return a JSON object with "en" and "pt" keys. Each caption should be a short, witty one-liner (under 80 chars). "Afundo" is the Portuguese word for "lunge" (the exercise). Do not include markdown formatting, only the raw JSON.`,
-        },
-        {
-          role: "user",
-          content: `Reddit post title: "${title}"\n\nWrite a funny bilingual caption for this meme.`,
-        },
-      ],
-    }),
-  });
+  );
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`OpenAI API error ${res.status}: ${body}`);
+    throw new Error(`GitHub Models API error ${res.status}: ${body}`);
   }
 
   const data = await res.json();
-  const raw = data.choices[0].message.content.trim();
+  return data.choices[0].message.content.trim();
+}
+
+async function scoreMemeRelevance(title, subreddit, token) {
+  const raw = await callLLM(
+    [
+      {
+        role: "system",
+        content: `You are a meme quality judge for "I Hate Lunges", a humor site about hating the lunge exercise. Rate how relevant and funny a Reddit post would be for this site.
+
+Highly relevant topics: lunges, leg day pain, skipping leg day, quad/glute soreness, lunge variations (Bulgarian split squat, walking lunges), gym memes about legs.
+Somewhat relevant: general leg exercises, squat humor, gym culture memes about lower body.
+Not relevant: upper body, diet, progress pics, form checks, non-meme content, bodybuilding competition content.
+
+The post must be an actual MEME (funny image macro, reaction image, or humorous format) — not a selfie, progress photo, video screenshot, or gym photo without humor.
+
+Return ONLY a JSON object: {"score": <1-10>, "reason": "<brief reason>"}`,
+      },
+      {
+        role: "user",
+        content: `Subreddit: r/${subreddit}\nTitle: "${title}"`,
+      },
+    ],
+    token,
+    0.3,
+  );
+
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) return { score: 0, reason: "parse error" };
+  return JSON.parse(match[0]);
+}
+
+async function generateCaptions(title, token) {
+  const raw = await callLLM(
+    [
+      {
+        role: "system",
+        content: `You write funny, short captions for anti-lunge memes. The site "I Hate Lunges" / "Eu Odeio Afundo" is a humor site about hating the lunge exercise. Return a JSON object with "en" and "pt" keys. Each caption should be a short, witty one-liner (under 80 chars). "Afundo" is the Portuguese word for "lunge" (the exercise). Do not include markdown formatting, only the raw JSON.`,
+      },
+      {
+        role: "user",
+        content: `Reddit post title: "${title}"\n\nWrite a funny bilingual caption for this meme.`,
+      },
+    ],
+    token,
+    0.8,
+  );
 
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error(`Could not parse caption JSON: ${raw}`);
-
   return JSON.parse(jsonMatch[0]);
 }
 
@@ -140,32 +174,82 @@ async function main() {
   const existingIds = await getExistingRedditIds();
   console.log(`Found ${existingIds.size} existing memes`);
 
+  // Phase 1: Browse meme-dedicated subs for top posts (high signal)
   const allPosts = [];
-  for (const sub of SUBREDDITS) {
-    console.log(`Searching r/${sub}...`);
-    const posts = await searchReddit(sub);
+  for (const sub of MEME_SUBREDDITS) {
+    console.log(`Browsing top posts in r/${sub}...`);
+    const posts = await fetchSubreddit(sub, "browse");
     allPosts.push(...posts);
     await new Promise((r) => setTimeout(r, 2000));
   }
 
+  // Phase 2: Search general subs with keywords (lower signal, LLM filters)
+  for (const sub of GENERAL_SUBREDDITS) {
+    console.log(`Searching r/${sub} for lunge/leg day keywords...`);
+    const posts = await fetchSubreddit(sub, "search");
+    allPosts.push(...posts);
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+
+  // Deduplicate and basic filters
+  const seen = new Set();
   const candidates = allPosts
     .filter(isImagePost)
     .filter((p) => !existingIds.has(p.data.id))
     .filter((p) => !p.data.over_18)
-    .filter((p) => p.data.score > 10);
+    .filter((p) => p.data.score > 10)
+    .filter((p) => {
+      if (seen.has(p.data.id)) return false;
+      seen.add(p.data.id);
+      return true;
+    })
+    .sort((a, b) => b.data.score - a.data.score);
 
-  const seen = new Set();
-  const unique = candidates.filter((p) => {
-    if (seen.has(p.data.id)) return false;
-    seen.add(p.data.id);
-    return true;
-  });
+  console.log(`Found ${candidates.length} image candidates after basic filtering`);
 
-  console.log(`Found ${unique.length} new candidate memes`);
-  const selected = unique.slice(0, MAX_MEMES);
+  // Phase 3: LLM relevance scoring
+  const MIN_RELEVANCE_SCORE = 6;
+  const scored = [];
 
+  for (const post of candidates) {
+    const { title, subreddit, id } = post.data;
+    const isMemeSubreddit = MEME_SUBREDDITS.some(
+      (s) => s.toLowerCase() === subreddit.toLowerCase(),
+    );
+
+    // Meme subs: only require keyword match (already curated meme content)
+    // General subs: always score with LLM
+    if (isMemeSubreddit && KEYWORDS_REGEX.test(title)) {
+      scored.push({ post, score: 8, reason: "keyword match in meme sub" });
+      console.log(`  ✓ [8] r/${subreddit}: "${title}" (keyword match)`);
+    } else {
+      try {
+        const result = await scoreMemeRelevance(title, subreddit, token);
+        console.log(
+          `  ${result.score >= MIN_RELEVANCE_SCORE ? "✓" : "✗"} [${result.score}] r/${subreddit}: "${title}" — ${result.reason}`,
+        );
+        if (result.score >= MIN_RELEVANCE_SCORE) {
+          scored.push({ post, ...result });
+        }
+        await new Promise((r) => setTimeout(r, 500));
+      } catch (err) {
+        console.warn(`  ⚠ LLM scoring failed for "${title}": ${err.message}`);
+      }
+    }
+
+    if (scored.length >= MAX_MEMES * 2) break;
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  const selected = scored.slice(0, MAX_MEMES);
+
+  console.log(
+    `\n${scored.length} posts passed relevance filter, selecting top ${selected.length}`,
+  );
+
+  // Phase 4: Download and caption
   const results = [];
-  for (const post of selected) {
+  for (const { post } of selected) {
     const { id, title, subreddit, author, permalink } = post.data;
     const imageUrl = getImageUrl(post);
 
@@ -190,7 +274,7 @@ async function main() {
       results.push(entry);
       console.log(`  ✓ Saved ${filename}`);
     } catch (err) {
-      console.warn(`  ✗ Failed: ${err.message}`);
+      console.warn(`  ✗ Failed (${imageUrl}): ${err.message}`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
